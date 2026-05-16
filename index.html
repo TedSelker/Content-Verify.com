@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Content-Verify — Alternative Ideas Over Siloed Positions</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #f5f6f8;
+      color: #1a1d27;
+      line-height: 1.65;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    :root {
+      --accent: #d94040;
+      --accent-light: rgba(217,64,64,.1);
+      --accent-border: rgba(217,64,64,.25);
+      --blue: #2563eb;
+      --surface: #ffffff;
+      --surface2: #f0f2f5;
+      --border: rgba(0,0,0,0.08);
+      --text: #1a1d27;
+      --text-muted: #6b7280;
+      --text-faint: #9ca3af;
+      --max: 1100px;
+    }
+
+    .container { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+
+    .tag {
+      display: inline-block;
+      font-size: 11px; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 5px 14px; border-radius: 100px;
+      background: var(--accent-light); color: var(--accent);
+      border: 1px solid var(--accent-border);
+      margin-bottom: 18px;
+    }
+    .section-title {
+      font-size: clamp(26px, 3.8vw, 40px);
+      font-weight: 800; line-height: 1.2; letter-spacing: -.02em;
+      color: var(--text);
+    }
+    .section-sub {
+      font-size: 17px; color: var(--text-muted);
+      max-width: 580px; margin-top: 14px;
+    }
+    .accent-text { color: var(--accent); }
+    section { padding: 96px 0; }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(245,246,248,.92);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: var(--max); margin: 0 auto; padding: 14px 24px;
+    }
+    .nav-logo { font-size: 17px; font-weight: 800; letter-spacing: -.02em; color: var(--text); }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a { font-size: 14px; color: var(--text-muted); transition: color .15s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent); color: #fff !important;
+      padding: 8px 20px; border-radius: 8px;
+      font-weight: 600; font-size: 13px !important;
+      transition: opacity .2s !important;
+    }
+    .nav-cta:hover { opacity: .85; }
+
+    /* ── Hero ── */
+    #hero {
+      min-height: 100vh; display: flex; align-items: center;
+      padding-top: 72px;
+      background: linear-gradient(160deg, #fff 0%, #f5f6f8 100%);
+    }
+    .hero-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 64px; align-items: center;
+    }
+    .hero-eyebrow {
+      font-size: 12px; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 18px;
+    }
+    .hero-title {
+      font-size: clamp(34px, 5vw, 58px);
+      font-weight: 900; line-height: 1.1;
+      letter-spacing: -.03em; margin-bottom: 22px; color: var(--text);
+    }
+    .hero-title em { font-style: normal; color: var(--accent); }
+    .hero-desc {
+      font-size: 17px; color: var(--text-muted);
+      max-width: 440px; margin-bottom: 32px; line-height: 1.7;
+    }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--accent); color: #fff;
+      padding: 13px 28px; border-radius: 9px;
+      font-weight: 700; font-size: 14px; border: none; cursor: pointer;
+      transition: opacity .2s, transform .15s;
+      box-shadow: 0 4px 20px rgba(217,64,64,.3);
+    }
+    .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+    .btn-secondary {
+      background: var(--surface); color: var(--text);
+      padding: 13px 28px; border-radius: 9px;
+      font-weight: 600; font-size: 14px;
+      border: 1px solid var(--border); cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-secondary:hover { background: #eaecef; }
+    .hero-meta { display: flex; gap: 20px; margin-top: 24px; flex-wrap: wrap; }
+    .hero-meta-item {
+      font-size: 12px; color: var(--text-faint);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .hero-meta-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+    /* ── Demo Mockup ── */
+    .demo-wrapper {
+      background: #2a2d38;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 32px 72px rgba(0,0,0,.18), 0 0 0 1px rgba(0,0,0,.06);
+    }
+    .demo-label {
+      font-size: 10px; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: rgba(255,255,255,.35);
+      text-align: center; margin-bottom: 12px;
+    }
+    .browser-mockup {
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,.12);
+    }
+    .browser-bar {
+      background: #e8eaed;
+      padding: 10px 14px;
+      display: flex; align-items: center; gap: 8px;
+      border-bottom: 1px solid rgba(0,0,0,.1);
+    }
+    .browser-dots { display: flex; gap: 5px; }
+    .browser-dot { width: 9px; height: 9px; border-radius: 50%; }
+    .bd-red { background: #ff5f57; }
+    .bd-yellow { background: #febc2e; }
+    .bd-green { background: #28c840; }
+    .browser-url {
+      flex: 1; background: #fff; border-radius: 5px;
+      padding: 4px 10px; font-size: 11px; color: #555;
+      border: 1px solid rgba(0,0,0,.12);
+    }
+    .browser-content { padding: 18px 20px; background: #fff; }
+
+    /* CV extension badge */
+    .cv-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(217,64,64,.08);
+      border: 1px solid rgba(217,64,64,.2);
+      border-radius: 6px; padding: 4px 10px;
+      font-size: 10px; font-weight: 700; color: var(--accent);
+      margin-bottom: 12px; text-transform: uppercase; letter-spacing: .06em;
+    }
+    .cv-badge-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--accent); animation: pulse 1.6s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .article-site { font-size: 10px; font-weight: 700; color: #999; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px; }
+    .article-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 8px; line-height: 1.3; }
+    .article-body { font-size: 12px; color: #444; line-height: 1.75; }
+
+    /* Highlights inside the mockup (realistic light-mode look) */
+    .hl-low {
+      background: rgba(255,200,100,.35);
+      border-bottom: 2px solid rgba(230,160,30,.7);
+      border-radius: 2px; padding: 0 2px; cursor: pointer;
+      position: relative;
+    }
+    .hl-med {
+      background: rgba(255,120,80,.22);
+      border-bottom: 2px solid rgba(220,80,50,.65);
+      border-radius: 2px; padding: 0 2px; cursor: pointer;
+    }
+    .hl-high {
+      background: rgba(217,64,64,.18);
+      border-bottom: 2px solid rgba(180,30,30,.7);
+      border-radius: 2px; padding: 0 2px; cursor: pointer;
+    }
+
+    /* Tooltip popup */
+    .tooltip-demo {
+      margin-top: 12px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.12);
+      border-radius: 8px;
+      box-shadow: 0 6px 24px rgba(0,0,0,.12);
+      padding: 12px 14px;
+      font-size: 11px;
+    }
+    .tooltip-claim {
+      font-weight: 700; color: #111; margin-bottom: 8px; font-size: 11px;
+    }
+    .tooltip-cols { display: flex; gap: 10px; }
+    .tooltip-col { flex: 1; }
+    .tooltip-col-head {
+      font-size: 9px; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; margin-bottom: 5px;
+    }
+    .col-for .tooltip-col-head { color: #16a34a; }
+    .col-against .tooltip-col-head { color: var(--accent); }
+    .tooltip-point { font-size: 10px; color: #555; line-height: 1.5; margin-bottom: 3px; }
+
+    .meter-row { display: flex; gap: 4px; align-items: center; margin-top: 10px; }
+    .meter-label { font-size: 10px; color: #999; margin-right: 4px; }
+    .meter-bar { height: 5px; border-radius: 3px; flex: 1; }
+    .mb-1 { background: #fcd34d; }
+    .mb-2 { background: #fb923c; }
+    .mb-3 { background: #ef4444; }
+    .mb-4 { background: #b91c1c; }
+
+    /* ── Shared card styles ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 26px;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .card:hover { box-shadow: 0 8px 32px rgba(0,0,0,.07); transform: translateY(-2px); }
+
+    /* ── Problem ── */
+    #problem { background: var(--surface); }
+    .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+    .problem-cards { display: flex; flex-direction: column; gap: 14px; }
+    .problem-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 22px; transition: border-color .2s; }
+    .problem-card:hover { border-color: var(--accent-border); }
+    .problem-icon { font-size: 24px; margin-bottom: 10px; }
+    .problem-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+    .problem-card p { font-size: 13px; color: var(--text-muted); }
+
+    /* ── How it Works ── */
+    .steps-header { text-align: center; margin-bottom: 56px; }
+    .steps-header .section-sub { margin: 12px auto 0; }
+    .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .step-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 28px;
+      position: relative; overflow: hidden;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .step-card:hover { box-shadow: 0 8px 28px rgba(0,0,0,.07); transform: translateY(-2px); }
+    .step-number {
+      font-size: 56px; font-weight: 900; line-height: 1;
+      color: rgba(217,64,64,.08);
+      position: absolute; top: 12px; right: 16px; letter-spacing: -.04em;
+    }
+    .step-icon { font-size: 28px; margin-bottom: 14px; }
+    .step-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+    .step-card p { font-size: 13px; color: var(--text-muted); }
+
+    /* ── Features ── */
+    #features { background: var(--surface); }
+    .features-header { text-align: center; margin-bottom: 56px; }
+    .features-header .section-sub { margin: 12px auto 0; }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .feature-card {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 13px; padding: 24px;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .feature-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.06); transform: translateY(-2px); }
+    .feature-icon {
+      width: 44px; height: 44px; border-radius: 11px;
+      background: var(--accent-light); border: 1px solid var(--accent-border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 16px;
+    }
+    .feature-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+    .feature-card p { font-size: 13px; color: var(--text-muted); }
+
+    /* ── Compatibility ── */
+    .compat-inner { text-align: center; }
+    .compat-inner .section-sub { margin: 12px auto 0; }
+    .sites-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 36px; }
+    .site-pill {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 100px; padding: 9px 20px;
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      transition: all .15s;
+    }
+    .site-pill:hover { border-color: var(--accent-border); color: var(--accent); }
+    .compat-note { margin-top: 24px; font-size: 13px; color: var(--text-faint); }
+
+    /* ── Markets ── */
+    #markets { background: var(--surface); }
+    .markets-header { text-align: center; margin-bottom: 56px; }
+    .markets-header .section-sub { margin: 12px auto 0; }
+    .markets-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .market-card {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 13px; padding: 24px;
+      display: flex; gap: 18px; align-items: flex-start;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .market-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.06); transform: translateY(-2px); }
+    .market-num {
+      font-size: 24px; font-weight: 900; color: var(--blue);
+      white-space: nowrap; min-width: 64px;
+    }
+    .market-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 5px; color: var(--text); }
+    .market-card p { font-size: 12px; color: var(--text-muted); }
+
+    /* ── Status ── */
+    .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+    .status-list { display: flex; flex-direction: column; gap: 14px; }
+    .status-item { display: flex; gap: 12px; align-items: flex-start; }
+    .status-check {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(22,163,74,.12); border: 1px solid rgba(22,163,74,.35);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px; font-size: 11px; color: #16a34a;
+    }
+    .status-item-text h4 { font-size: 14px; font-weight: 600; margin-bottom: 3px; color: var(--text); }
+    .status-item-text p { font-size: 13px; color: var(--text-muted); }
+    .quote-card {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 28px; position: relative;
+    }
+    .quote-mark {
+      font-size: 64px; line-height: .75; color: rgba(217,64,64,.15);
+      font-family: Georgia, serif;
+      position: absolute; top: 14px; left: 20px;
+    }
+    .quote-text {
+      font-size: 16px; font-style: italic; color: var(--text);
+      line-height: 1.65; margin-top: 28px; margin-bottom: 14px;
+    }
+    .quote-divider { height: 1px; background: var(--border); margin: 20px 0; }
+    .quote-attr { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+    .quote-attr strong { color: var(--text); }
+
+    /* ── Pricing ── */
+    #pricing { background: var(--surface); }
+    .pricing-inner { text-align: center; }
+    .pricing-inner .section-sub { margin: 12px auto 44px; }
+    .pricing-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; max-width: 660px; margin: 0 auto; }
+    .pricing-card {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 28px; text-align: left;
+    }
+    .pricing-card.featured {
+      background: #fff;
+      border-color: var(--accent-border);
+      box-shadow: 0 4px 20px rgba(217,64,64,.1);
+    }
+    .pricing-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 8px; }
+    .pricing-card.featured .pricing-label { color: var(--accent); }
+    .pricing-name { font-size: 20px; font-weight: 800; margin-bottom: 8px; color: var(--text); }
+    .pricing-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+    .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .pricing-features li { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 7px; }
+    .pricing-features li::before { content: '✓'; color: #16a34a; font-weight: 700; }
+
+    /* ── CTA ── */
+    #cta { background: var(--surface2); border-top: 1px solid var(--border); }
+    .cta-inner { text-align: center; }
+    .cta-inner .section-title { margin-bottom: 14px; }
+    .cta-inner .section-sub { margin: 0 auto 32px; }
+    .cta-form { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; max-width: 460px; margin: 0 auto; }
+    .cta-input {
+      flex: 1; min-width: 200px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 9px; padding: 13px 16px;
+      font-size: 14px; color: var(--text); outline: none; transition: border-color .2s;
+    }
+    .cta-input:focus { border-color: var(--accent); }
+    .cta-input::placeholder { color: var(--text-faint); }
+    .cta-note { font-size: 12px; color: var(--text-faint); margin-top: 12px; }
+    .cta-contact { margin-top: 28px; font-size: 14px; color: var(--text-muted); }
+    .cta-contact a { color: var(--accent); text-decoration: underline; }
+
+    /* ── Footer ── */
+    footer { border-top: 1px solid var(--border); padding: 28px 0; background: var(--surface); }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; }
+    .footer-logo { font-size: 15px; font-weight: 800; color: var(--text); }
+    .footer-logo span { color: var(--accent); }
+    .footer-copy { font-size: 12px; color: var(--text-faint); }
+    .footer-legal { font-size: 11px; color: var(--text-faint); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .hero-grid, .problem-grid, .status-grid { grid-template-columns: 1fr; }
+      .steps-grid, .features-grid { grid-template-columns: 1fr; }
+      .markets-grid, .pricing-cards { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      section { padding: 60px 0; }
+      .demo-wrapper { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <div class="nav-inner">
+      <div class="nav-logo">Content<span>-Verify</span></div>
+      <div class="nav-links">
+        <a href="#how">How It Works</a>
+        <a href="#features">Features</a>
+        <a href="#markets">Markets</a>
+        <a href="#status">Status</a>
+        <a href="#cta" class="nav-cta">Request Demo</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section id="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="hero-eyebrow">AI-Powered Controversy Detection</div>
+        <h1 class="hero-title">
+          Elevating<br/>
+          <em>alternative ideas</em><br/>
+          over siloed positions
+        </h1>
+        <p class="hero-desc">
+          A Chrome extension that uses AI to detect controversial statements
+          on any webpage — surfacing supporting and opposing perspectives, right where you read.
+        </p>
+        <div class="hero-actions">
+          <a href="#cta" class="btn-primary">Request Demo</a>
+          <a href="#how" class="btn-secondary">See How It Works</a>
+        </div>
+        <div class="hero-meta">
+          <div class="hero-meta-item"><span class="hero-meta-dot"></span>Works on most websites</div>
+          <div class="hero-meta-item"><span class="hero-meta-dot"></span>Chrome Extension</div>
+          <div class="hero-meta-item"><span class="hero-meta-dot"></span>AI-Powered</div>
+        </div>
+      </div>
+
+      <!-- Demo mockup — dark-framed to stand out from light page -->
+      <div class="demo-wrapper">
+        <div class="demo-label">Live extension demo</div>
+        <div class="browser-mockup">
+          <div class="browser-bar">
+            <div class="browser-dots">
+              <div class="browser-dot bd-red"></div>
+              <div class="browser-dot bd-yellow"></div>
+              <div class="browser-dot bd-green"></div>
+            </div>
+            <div class="browser-url">nytimes.com/opinion/economic-policy</div>
+          </div>
+          <div class="browser-content">
+            <div class="cv-badge">
+              <div class="cv-badge-dot"></div>
+              Content-Verify — 4 controversies found
+            </div>
+            <div class="article-site">The New York Times · Opinion</div>
+            <div class="article-title">The Future of Economic Policy</div>
+            <div class="article-body">
+              <p>Experts widely agree that <span class="hl-low">increased government spending
+              stimulates long-term growth</span> in developing economies. Recent studies suggest
+              that <span class="hl-high">deficit spending has no measurable negative impact
+              on future generations</span>, though many economists dispute this strongly.</p>
+              <br/>
+              <p>The consensus holds that <span class="hl-med">free trade always benefits
+              both parties equally</span>, a view that has been gaining traction...</p>
+            </div>
+
+            <!-- Hover tooltip demo -->
+            <div class="tooltip-demo">
+              <div class="tooltip-claim">↑ "deficit spending has no measurable negative impact on future generations"</div>
+              <div class="tooltip-cols">
+                <div class="tooltip-col col-for">
+                  <div class="tooltip-col-head">Supporting</div>
+                  <div class="tooltip-point">MMT economists argue deficits fund productive investment.</div>
+                  <div class="tooltip-point">Short-term stimulus can raise GDP without long-run harm.</div>
+                </div>
+                <div class="tooltip-col col-against">
+                  <div class="tooltip-col-head">Opposing</div>
+                  <div class="tooltip-point">CBO studies link sustained deficits to lower future wages.</div>
+                  <div class="tooltip-point">Crowding-out theory shows reduced private investment.</div>
+                </div>
+              </div>
+              <div class="meter-row">
+                <span class="meter-label">Controversy</span>
+                <div class="meter-bar mb-1"></div>
+                <div class="meter-bar mb-2"></div>
+                <div class="meter-bar mb-3"></div>
+                <div class="meter-bar mb-4"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem -->
+  <section id="problem">
+    <div class="container problem-grid">
+      <div>
+        <div class="tag">The Problem</div>
+        <h2 class="section-title">We read in <span class="accent-text">information silos</span></h2>
+        <p class="section-sub">
+          Whatever you read was written by someone with a point of view.
+          Existing tools like Wikipedia dispute boxes are static and incomplete —
+          there's no AI helping you see the full picture in real time.
+        </p>
+      </div>
+      <div class="problem-cards">
+        <div class="problem-card">
+          <div class="problem-icon">🔒</div>
+          <h3>Siloed Beliefs</h3>
+          <p>Readers rarely encounter quality opposing arguments, reinforcing existing biases without challenge.</p>
+        </div>
+        <div class="problem-card">
+          <div class="problem-icon">📋</div>
+          <h3>Static Dispute Markers</h3>
+          <p>Wikipedia has 40 dispute types, but they're passive banners — not contextual, not interactive, not AI-powered.</p>
+        </div>
+        <div class="problem-card">
+          <div class="problem-icon">🌐</div>
+          <h3>No Cross-Site Solution</h3>
+          <p>No tool brings controversy awareness uniformly across news sites, opinion pages, and reference sites.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it Works -->
+  <section id="how">
+    <div class="container">
+      <div class="steps-header">
+        <div class="tag">How It Works</div>
+        <h2 class="section-title">Three steps to <span class="accent-text">clearer thinking</span></h2>
+        <p class="section-sub">Content-Verify works quietly in the background — no effort required from the reader.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <div class="step-icon">🔍</div>
+          <h3>Detection</h3>
+          <p>The extension scans page content and identifies controversial statements using AI, prioritizing 3–4 key claims to keep things focused.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <div class="step-icon">🎨</div>
+          <h3>Highlighting</h3>
+          <p>Controversial text is marked inline — from soft amber for mild controversy to vivid red for highly contested claims.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <div class="step-icon">⚖️</div>
+          <h3>Analysis</h3>
+          <p>Hovering over a highlighted passage reveals supporting and opposing positions — helping readers understand the full landscape of thought.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features">
+    <div class="container">
+      <div class="features-header">
+        <div class="tag">Features</div>
+        <h2 class="section-title">Built for <span class="accent-text">real readers</span></h2>
+        <p class="section-sub">Designed to inform without distracting. Content-Verify fits right into your reading flow.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3>Focused Detection</h3>
+          <p>Surfaces only 3–4 top controversies per page — quality over quantity.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌡️</div>
+          <h3>Controversy Meter</h3>
+          <p>Color-coded highlights let you instantly gauge how contested a claim is before you dig in.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💬</div>
+          <h3>Hover Analysis</h3>
+          <p>On-demand tooltips show both sides of the argument when you want them — not before.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h3>Works Everywhere</h3>
+          <p>Compatible with most websites — news outlets, opinion pages, wikis, blogs, and more.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔇</div>
+          <h3>Block List</h3>
+          <p>Easily exclude sites where the extension isn't useful — full user control.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3>AI-Powered</h3>
+          <p>Uses language model embeddings to understand context, not just keywords — nuanced and accurate.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Compatibility -->
+  <section id="compatibility">
+    <div class="container compat-inner">
+      <div class="tag">Compatibility</div>
+      <h2 class="section-title">Works across the <span class="accent-text">open web</span></h2>
+      <p class="section-sub">Tested and working on today's major platforms — with more coming soon.</p>
+      <div class="sites-row">
+        <div class="site-pill">Wikipedia</div>
+        <div class="site-pill">The New York Times</div>
+        <div class="site-pill">Fox News</div>
+        <div class="site-pill">CNN</div>
+        <div class="site-pill">The Atlantic</div>
+        <div class="site-pill">Reddit</div>
+        <div class="site-pill">Substack</div>
+        <div class="site-pill">Medium</div>
+        <div class="site-pill">Most news sites</div>
+      </div>
+      <p class="compat-note">Firefox, Safari, and Edge coming soon — Chrome extension available now.</p>
+    </div>
+  </section>
+
+  <!-- Markets -->
+  <section id="markets">
+    <div class="container">
+      <div class="markets-header">
+        <div class="tag">Market Opportunity</div>
+        <h2 class="section-title">A massive <span class="accent-text">addressable market</span></h2>
+        <p class="section-sub">From K–12 classrooms to enterprise knowledge workers, Content-Verify serves anyone who reads the web.</p>
+      </div>
+      <div class="markets-grid">
+        <div class="market-card">
+          <div class="market-num">100M+</div>
+          <div>
+            <h3>Knowledge Workers</h3>
+            <p>US professionals whose work depends on accurate, well-rounded information and critical thinking.</p>
+          </div>
+        </div>
+        <div class="market-card">
+          <div class="market-num">54M</div>
+          <div>
+            <h3>K–12 Students</h3>
+            <p>Developing media literacy — ideal for schools investing in critical thinking tools.</p>
+          </div>
+        </div>
+        <div class="market-card">
+          <div class="market-num">20M</div>
+          <div>
+            <h3>College Students</h3>
+            <p>Undergrad researchers who need to evaluate sources and understand multiple scholarly perspectives.</p>
+          </div>
+        </div>
+        <div class="market-card">
+          <div class="market-num">3M</div>
+          <div>
+            <h3>Graduate Researchers</h3>
+            <p>Advanced academic users who need rigorous controversy-awareness in literature reviews and research.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Status -->
+  <section id="status">
+    <div class="container status-grid">
+      <div>
+        <div class="tag">Current Status</div>
+        <h2 class="section-title">Ready to <span class="accent-text">partner</span></h2>
+        <p class="section-sub" style="margin-bottom:32px;">The core technology works today. We're seeking partners, licensees, and investors to scale.</p>
+        <div class="status-list">
+          <div class="status-item">
+            <div class="status-check">✓</div>
+            <div class="status-item-text">
+              <h4>Chrome Extension — Functional</h4>
+              <p>Works on most websites. Available now for demo upon request.</p>
+            </div>
+          </div>
+          <div class="status-item">
+            <div class="status-check">✓</div>
+            <div class="status-item-text">
+              <h4>User Research — Positive</h4>
+              <p>Highlights drive deeper engagement. Users want to keep it turned on.</p>
+            </div>
+          </div>
+          <div class="status-item">
+            <div class="status-check">✓</div>
+            <div class="status-item-text">
+              <h4>2 Research Papers — In Preparation</h4>
+              <p>Academic validation of effectiveness and user engagement underway.</p>
+            </div>
+          </div>
+          <div class="status-item">
+            <div class="status-check">✓</div>
+            <div class="status-item-text">
+              <h4>2 Patents — Planned</h4>
+              <p>IP protection for the core detection and presentation methodology.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-mark">"</div>
+        <p class="quote-text">We love it and would work with you if our readers pushed for it.</p>
+        <div class="quote-attr"><strong>Jimmy Wales</strong> — Co-founder, Wikipedia</div>
+        <div class="quote-divider"></div>
+        <p class="quote-text" style="margin-top:0;">[Content-Verify would] transform [the] NYT opinion page.</p>
+        <div class="quote-attr"><strong>John Markoff</strong> — Technology Writer, New York Times</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing">
+    <div class="container">
+      <div class="pricing-inner">
+        <div class="tag">Business Model</div>
+        <h2 class="section-title">Flexible <span class="accent-text">licensing</span></h2>
+        <p class="section-sub">Designed to reach readers at scale — from individuals to enterprise publishers.</p>
+        <div class="pricing-cards">
+          <div class="pricing-card">
+            <div class="pricing-label">Free Tier</div>
+            <div class="pricing-name">Freemium</div>
+            <div class="pricing-desc">Core controversy highlights available to all readers at no cost.</div>
+            <ul class="pricing-features">
+              <li>Controversy highlighting</li>
+              <li>3–4 detections per page</li>
+              <li>Color-coded intensity</li>
+            </ul>
+          </div>
+          <div class="pricing-card featured">
+            <div class="pricing-label">Premium / License</div>
+            <div class="pricing-name">Pro &amp; Enterprise</div>
+            <div class="pricing-desc">Full analysis panels and publisher / institutional licensing.</div>
+            <ul class="pricing-features">
+              <li>Supporting &amp; opposing positions</li>
+              <li>Publisher integration</li>
+              <li>School &amp; enterprise licensing</li>
+              <li>API &amp; embedding access</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="cta">
+    <div class="container cta-inner">
+      <div class="tag">Get Involved</div>
+      <h2 class="section-title">See Content-Verify <span class="accent-text">in action</span></h2>
+      <p class="section-sub">
+        Request a live demo or reach out about partnership, licensing, or investment.
+        The extension is working today — let us show you.
+      </p>
+      <div class="cta-form">
+        <input class="cta-input" type="email" placeholder="your@email.com" />
+        <button class="btn-primary" onclick="handleSubmit(event)">Request Demo</button>
+      </div>
+      <p class="cta-note">No spam. We'll respond within 48 hours.</p>
+      <p class="cta-contact">Or email directly: <a href="mailto:Ted.Selker@gmail.com">Ted.Selker@gmail.com</a></p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-inner">
+      <div class="footer-logo">Content<span>-Verify</span></div>
+      <div class="footer-copy">© 2026 Content-Verify. All rights reserved.</div>
+      <div class="footer-legal">Confidential — 2026</div>
+    </div>
+  </footer>
+
+  <script>
+    // Nav scroll highlight
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) current = s.id; });
+      navLinks.forEach(a => {
+        a.style.color = a.getAttribute('href') === `#${current}` ? '#1a1d27' : '';
+      });
+    });
+
+    // CTA submit
+    function handleSubmit(e) {
+      e.preventDefault();
+      const input = document.querySelector('.cta-input');
+      const btn = e.target;
+      if (!input.value || !input.value.includes('@')) {
+        input.style.borderColor = '#d94040'; return;
+      }
+      btn.textContent = '✓ Request Sent!';
+      btn.style.background = '#16a34a';
+      btn.style.boxShadow = '0 4px 16px rgba(22,163,74,.3)';
+      input.value = '';
+      setTimeout(() => {
+        btn.textContent = 'Request Demo';
+        btn.style.background = '';
+        btn.style.boxShadow = '';
+      }, 4000);
+    }
+
+    // Fade-in on scroll
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.step-card, .feature-card, .market-card, .problem-card').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(16px)';
+      el.style.transition = 'opacity 0.45s ease, transform 0.45s ease, box-shadow 0.2s, border-color 0.15s';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
